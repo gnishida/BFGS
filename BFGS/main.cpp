@@ -25,6 +25,8 @@ void function1_grad(const real_1d_array &x, double &func, real_1d_array &grad, v
     grad[0] = 400*pow(x[0]+3,3);
     grad[1] = 4*pow(x[1]-3,3);
 	grad[2] = 2*(x[2]+1);
+
+	printf("Cost: %lf\n", func);
 }
 
 int main(int argc, char **argv) {
@@ -33,7 +35,7 @@ int main(int argc, char **argv) {
     double epsg = 0.0000000001;
     double epsf = 0;
     double epsx = 0;
-    ae_int_t maxits = 0;
+    ae_int_t maxits = 400;				// 最大繰り返し数
     minlbfgsstate state;
     minlbfgsreport rep;
 
@@ -42,7 +44,23 @@ int main(int argc, char **argv) {
     alglib::minlbfgsoptimize(state, function1_grad);
     minlbfgsresults(state, x, rep);
 
-    printf("termination type: %d\n", int(rep.terminationtype));
-    printf("solution: %s\n", x.tostring(2).c_str());
-    return 0;
+	printf("----------------------------------------\n");
+	if (rep.terminationtype < 0) {
+		printf("Some error occured.\n");
+	} else if (rep.terminationtype == 1) {
+		printf("Function is converged.\n");
+	} else if (rep.terminationtype == 2) {
+		printf("Step is converged.\n");
+	} else if (rep.terminationtype == 4) {
+		printf("Gradient is converged.\n");
+	} else if (rep.terminationtype == 5) {
+		printf("MaxIts steps was taken.\n");
+	} else if (rep.terminationtype == 7) {
+		printf("Converged.\n");
+	} else {
+		printf("Unknown return type: %d\n", rep.terminationtype);
+	}
+    printf("Solution: %s\n", x.tostring(2).c_str());
+
+	return 0;
 }
